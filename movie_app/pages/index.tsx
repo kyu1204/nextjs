@@ -1,6 +1,5 @@
 import Seo from "@/components/Seo";
-import {useEffect, useState} from "react";
-
+import {GetServerSideProps, InferGetServerSidePropsType} from "next";
 
 interface IfMovie {
     id: number;
@@ -8,21 +7,11 @@ interface IfMovie {
     poster_path: string;
 }
 
-export default function Home() {
-    const [movies, setMovies] = useState<IfMovie[]>();
-
-    useEffect(() => {
-        (async () => {
-            const {results} = await (await fetch("/api/movies")).json();
-            setMovies(results);
-        })();
-    }, []);
-
+export default function Home({movies}: InferGetServerSidePropsType<GetServerSideProps>) {
     return (
         <div className="container">
             <Seo title="Home"/>
-            {!movies && <h4>Loading...</h4>}
-            {movies?.map((movie: IfMovie) => (
+            {movies.map((movie: IfMovie) => (
                 <div className="movie" key={movie.id}>
                     <img src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt="poster"/>
                     <h4>{movie.original_title}</h4>
@@ -34,6 +23,10 @@ export default function Home() {
                     grid-template-columns: 1fr 1fr;
                     padding: 20px;
                     gap: 20px;
+                }
+
+                .movie {
+                    cursor: pointer;
                 }
 
                 .movie img {
@@ -54,4 +47,20 @@ export default function Home() {
             `}</style>
         </div>
     )
+}
+
+
+export async function getServerSideProps() {
+    const {results} = await (
+        await fetch(
+            "http://localhost:3000/api/movies",
+            {cache: "no-store"}
+        )
+    ).json();
+
+    return {
+        props: {
+            movies: results
+        }
+    }
 }
