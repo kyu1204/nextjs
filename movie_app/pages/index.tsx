@@ -1,5 +1,6 @@
 import Seo from "@/components/Seo";
 import {GetServerSideProps, InferGetServerSidePropsType} from "next";
+import Link from "next/link";
 
 interface IfMovie {
     id: number;
@@ -12,10 +13,14 @@ export default function Home({movies}: InferGetServerSidePropsType<GetServerSide
         <div className="container">
             <Seo title="Home"/>
             {movies.map((movie: IfMovie) => (
-                <div className="movie" key={movie.id}>
-                    <img src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt="poster"/>
-                    <h4>{movie.original_title}</h4>
-                </div>
+                <Link href={{
+                    pathname: `/movies/${movie.id}`, query: {title: movie.original_title}
+                }} key={movie.id} as={`/movies/${movie.id}`}>
+                    <div className="movie" key={movie.id}>
+                        <img src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt="poster"/>
+                        <h4>{movie.original_title}</h4>
+                    </div>
+                </Link>
             ))}
             <style jsx>{`
                 .container {
